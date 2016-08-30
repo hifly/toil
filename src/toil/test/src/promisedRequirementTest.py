@@ -157,7 +157,7 @@ def _follower(job, expectedDisk):
     :param expectedDisk: Expect disk to be used by this job
     :return: None
     """
-    assert job.effectiveRequirements(job.fileStore.jobStore.config).disk == expectedDisk
+    assert job.disk == expectedDisk
 
 
 def maxConcurrency(job, cpuCount, filename, coresPerJob):
@@ -197,7 +197,7 @@ def logDiskUsage(job, funcName, sleep=0):
 
     :return: job function's disk usage
     """
-    diskUsage = job.effectiveRequirements(job.fileStore.jobStore.config).disk
+    diskUsage = job.disk
     job.fileStore.logToMaster('{}: {}'.format(funcName, diskUsage))
     time.sleep(sleep)
     return diskUsage
