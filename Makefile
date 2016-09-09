@@ -95,7 +95,7 @@ test: check_venv check_build_reqs
 	$(python) run_tests.py test $(tests)
 
 
-integration-test: check_venv check_build_reqs sdist docker-push
+integration-test: check_venv check_build_reqs sdist push_docker
 	TOIL_TEST_INTEGRATIVE=True $(python) run_tests.py integration-test $(tests)
 
 
