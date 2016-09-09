@@ -567,16 +567,7 @@ class Toil(object):
             job = rootJob._serialiseFirstJob(self._jobStore)
             self._cacheJob(job)
 
-            if self.config.provisioner is None:
-                self._provisioner = None
-            elif self.config.provisioner == 'cgcloud':
-                logger.info('Using cgcloud provisioner.')
-                from toil.provisioners.cgcloud.provisioner import CGCloudProvisioner
-                self._provisioner = CGCloudProvisioner(self.config, self._batchSystem)
-            else:
-                # Command line parser shold have checked argument validity already
-                assert False, self.config.provisioner
-
+            self._setProvisioner()
             return self._runMainLoop(job)
         finally:
             self._shutdownBatchSystem()
@@ -599,10 +590,23 @@ class Toil(object):
             self._serialiseEnv()
             self._cacheAllJobs()
 
+            self._setProvisioner()
+            
             rootJob = self._jobStore.clean(jobCache=self._jobCache)
             return self._runMainLoop(rootJob)
         finally:
             self._shutdownBatchSystem()
+
+    def _setProvisioner(self):
+        if self.config.provisioner is None:
+            self._provisioner = None
+        elif self.config.provisioner == 'cgcloud':
+            logger.info('Using cgcloud provisioner.')
+            from toil.provisioners.cgcloud.provisioner import CGCloudProvisioner
+            self._provisioner = CGCloudProvisioner(self.config, self._batchSystem)
+        else:
+            # Command line parser shold have checked argument validity already
+            assert False, self.config.provisioner
 
     @staticmethod
     def getJobStore(locator):
