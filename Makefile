@@ -65,6 +65,7 @@ sdist_name:=toil-$(toil_version).tar.gz
 current_commit:=$(shell git log --pretty=oneline -n 1 -- $(pwd) | cut -f1 -d " ")
 dirty:=$(shell (git diff --exit-code && git diff --cached --exit-code) > /dev/null || printf -- --DIRTY)
 docker_tag:=$(toil_version)--$(current_commit)$(dirty)
+docker_base_name:=toil
 
 green=\033[0;32m
 normal=\033[0m\n
@@ -115,11 +116,12 @@ docker: check_docker_registry docker/worker/Dockerfile docker/leader/Dockerfile
 	@set -ex \
 	; cd docker \
 	; for role in leader worker; do \
-	    docker build --tag=$(docker_registry)/toil-$${role}:$(docker_tag) \
+	    docker build --tag=$(docker_registry)/$(docker_base_name)-$${role}:$(docker_tag) \
 	                 -f $${role}/Dockerfile \
 	                 . \
 	; done
-	docker tag -f $(docker_registry)/toil-leader:$(docker_tag) $(docker_registry)/toil:$(docker_tag)
+	docker tag -f $(docker_registry)/$(docker_base_name)-leader:$(docker_tag) \
+	              $(docker_registry)/$(docker_base_name):$(docker_tag)
 
 docker/$(sdist_name): dist/$(sdist_name)
 	cp $< $@
@@ -129,13 +131,15 @@ docker/%/Dockerfile: docker/Dockerfile.py docker/$(sdist_name)
 	$(python) docker/Dockerfile.py \
 	    --role=$* \
 	    --sdist=$(sdist_name) \
-	    --self=$(docker_registry)/toil-$*:$(docker_tag) > $@
+	    --self=$(docker_registry)/$(docker_base_name)-$*:$(docker_tag) > $@
 
 clean_docker:
 	-rm docker/Dockerfile.{leader,worker} docker/$(sdist_name)
 
 push_docker: docker
-	for repo in toil{,-leader,-worker}; do docker push $(docker_registry)/$${repo}; done
+	for repo in $(docker_base_name){,-leader,-worker}; do \
+	    docker push $(docker_registry)/$${repo}
+	; done
 
 
 docs: check_venv check_build_reqs
