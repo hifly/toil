@@ -138,7 +138,7 @@ clean_docker:
 
 push_docker: docker
 	for repo in $(docker_base_name){,-leader,-worker}; do \
-	    docker push $(docker_registry)/$${repo}
+	    docker push $(docker_registry)/$${repo} \
 	; done
 
 
