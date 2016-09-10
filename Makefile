@@ -65,7 +65,7 @@ sdist_name:=toil-$(toil_version).tar.gz
 current_commit:=$(shell git log --pretty=oneline -n 1 -- $(pwd) | cut -f1 -d " ")
 dirty:=$(shell (git diff --exit-code && git diff --cached --exit-code) > /dev/null || printf -- --DIRTY)
 docker_tag:=$(toil_version)--$(current_commit)$(dirty)
-docker_base_name:=toil
+docker_base_name=toil
 
 green=\033[0;32m
 normal=\033[0m\n
