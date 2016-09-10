@@ -97,7 +97,9 @@ test: check_venv check_build_reqs
 
 
 integration-test: check_venv check_build_reqs sdist push_docker
-	TOIL_TEST_INTEGRATIVE=True $(python) run_tests.py integration-test $(tests)
+	TOIL_TEST_INTEGRATIVE=True \
+	TOIL_APPLIANCE_SELF=$(docker_registry)/$(docker_base_name):$(docker_tag) \
+	    $(python) run_tests.py integration-test $(tests)
 
 
 pypi: check_venv check_clean_working_copy check_running_on_jenkins
